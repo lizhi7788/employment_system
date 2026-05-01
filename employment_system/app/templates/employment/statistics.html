@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}就业统计分析{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="bi bi-bar-chart"></i> 就业统计分析</h4>
+        <a href="{{ url_for('analysis.employment_rate') }}" class="btn btn-outline-primary">
+            <i class="bi bi-graph-up"></i> 详细分析
+        </a>
+    </div>
+
+    <!-- 筛选 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <select name="college_id" class="form-select">
+                        <option value="">全部学院</option>
+                        {% for college in colleges %}
+                        <option value="{{ college.id }}" {{ 'selected' if college_id == college.id else '' }}>
+                            {{ college.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select name="year" class="form-select">
+                        <option value="">全部年份</option>
+                        {% for y in range(2025, 2015) %}
+                        <option value="{{ y }}" {{ 'selected' if year == y else '' }}>{{ y }}年</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">筛选</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-primary"><i class="bi bi-people"></i></div>
+                <div class="stat-value">{{ total }}</div>
+                <div class="stat-label">毕业生总数</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-success"><i class="bi bi-briefcase-check"></i></div>
+                <div class="stat-value">{{ employed }}</div>
+                <div class="stat-label">已就业人数</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-info"><i class="bi bi-percent"></i></div>
+                <div class="stat-value">{{ rate }}%</div>
+                <div class="stat-label">就业率</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-warning"><i class="bi bi-hourglass"></i></div>
+                <div class="stat-value">{{ total - employed }}</div>
+                <div class="stat-label">待就业</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 就业状态分布 -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">就业状态分布</div>
+                <div class="card-body">
+                    <div id="statusChart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 行业分布 -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">行业分布</div>
+                <div class="card-body">
+                    <div id="industryChart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 薪资分布 -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">薪资分布</div>
+                <div class="card-body">
+                    <div id="salaryChart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 就业状态图表
+    var statusData = {{ status_stats|tojson|safe if status_stats else '{}' }};
+    var statusChart = echarts.init(document.getElementById('statusChart'));
+    statusChart.setOption({
+        tooltip: { trigger: 'item' },
+        legend: { bottom: '5%' },
+        series: [{
+            type: 'pie',
+            radius: ['40%', '70%'],
+            data: Object.entries(statusData).map(([name, value]) => ({ name, value })),
+            emphasis: {
+                itemStyle: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }]
+    });
+
+    // 行业分布图表
+    var industryData = {{ industry_stats|tojson|safe if industry_stats else '{}' }};
+    var industryChart = echarts.init(document.getElementById('industryChart'));
+    industryChart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        xAxis: { type: 'category', data: Object.keys(industryData) },
+        yAxis: { type: 'value' },
+        series: [{
+            type: 'bar',
+            data: Object.values(industryData),
+            itemStyle: { color: '#3b82f6' }
+        }]
+    });
+
+    // 薪资分布图表
+    var salaryData = {{ salary_stats|tojson|safe if salary_stats else '{}' }};
+    var salaryChart = echarts.init(document.getElementById('salaryChart'));
+    salaryChart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        xAxis: { type: 'category', data: Object.keys(salaryData) },
+        yAxis: { type: 'value' },
+        series: [{
+            type: 'bar',
+            data: Object.values(salaryData),
+            itemStyle: { color: '#22c55e' }
+        }]
+    });
+</script>
+{% endblock %}

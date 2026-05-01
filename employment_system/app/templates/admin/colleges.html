@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}学院管理{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="bi bi-building"></i> 学院管理</h4>
+        <a href="{{ url_for('admin.college_add') }}" class="btn btn-primary">
+            <i class="bi bi-plus"></i> 添加学院
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>学院名称</th>
+                        <th>学院代码</th>
+                        <th>学生人数</th>
+                        <th>教师人数</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for college in colleges %}
+                    <tr>
+                        <td>{{ college.name }}</td>
+                        <td>{{ college.code or '-' }}</td>
+                        <td>{{ college.students.count() }}</td>
+                        <td>{{ college.teachers.count() }}</td>
+                        <td>{{ college.created_at.strftime('%Y-%m-%d') if college.created_at else '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.college_edit', id=college.id) }}" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form action="{{ url_for('admin.college_delete', id=college.id) }}" method="POST" style="display:inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定删除?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="6" class="text-center text-muted">暂无学院数据</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}导入就业数据{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-upload"></i> 导入就业数据
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.file.label.text }}</label>
+                            {{ form.file(class="form-control", accept=".xlsx,.xls") }}
+                            {% if form.file.errors %}
+                                <div class="text-danger small">{{ form.file.errors[0] }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading">Excel格式要求：</h6>
+                            <p class="mb-0">请确保Excel文件包含以下列：学号、就业状态、就业类型、企业名称、职位、薪资、省份、城市、行业、企业类型</p>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('employment.list') }}" class="btn btn-secondary">返回</a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

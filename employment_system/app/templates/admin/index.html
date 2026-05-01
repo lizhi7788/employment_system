@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}管理后台{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-0"><i class="bi bi-speedometer2"></i> 管理后台</h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-primary"><i class="bi bi-people"></i></div>
+                <div class="stat-value">{{ total_users }}</div>
+                <div class="stat-label">用户总数</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-success"><i class="bi bi-building"></i></div>
+                <div class="stat-value">{{ total_colleges }}</div>
+                <div class="stat-label">学院数量</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-info"><i class="bi bi-book"></i></div>
+                <div class="stat-value">{{ total_majors }}</div>
+                <div class="stat-label">专业数量</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-warning"><i class="bi bi-megaphone"></i></div>
+                <div class="stat-value">{{ total_announcements }}</div>
+                <div class="stat-label">公告数量</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">管理导航</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('admin.users') }}" class="btn btn-outline-primary btn-lg w-100">
+                                <i class="bi bi-people"></i> 用户管理
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('admin.colleges') }}" class="btn btn-outline-success btn-lg w-100">
+                                <i class="bi bi-building"></i> 学院管理
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('admin.majors') }}" class="btn btn-outline-info btn-lg w-100">
+                                <i class="bi bi-book"></i> 专业管理
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('admin.announcements') }}" class="btn btn-outline-warning btn-lg w-100">
+                                <i class="bi bi-megaphone"></i> 公告管理
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <a href="{{ url_for('admin.activities') }}" class="btn btn-outline-danger btn-lg w-100">
+                                <i class="bi bi-calendar-event"></i> 活动管理
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

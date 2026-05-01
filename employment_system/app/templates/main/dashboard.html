@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+
+{% block title %}仪表盘{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-0">
+                <i class="bi bi-speedometer2"></i> 个人中心
+                <span class="badge bg-{{ 'danger' if role == 'admin' else 'success' if role == 'teacher' else 'primary' }} ms-2">
+                    {{ '管理员' if role == 'admin' else '教师' if role == 'teacher' else '学生' }}
+                </span>
+            </h4>
+        </div>
+    </div>
+
+    {% if role == 'admin' %}
+    <!-- 管理员仪表盘 -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-primary"><i class="bi bi-mortarboard"></i></div>
+                <div class="stat-value">{{ total_students }}</div>
+                <div class="stat-label">学生总数</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-success"><i class="bi bi-briefcase"></i></div>
+                <div class="stat-value">{{ total_employments }}</div>
+                <div class="stat-label">就业记录</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-info"><i class="bi bi-building"></i></div>
+                <div class="stat-value">{{ total_colleges }}</div>
+                <div class="stat-label">学院数量</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-warning"><i class="bi bi-shop"></i></div>
+                <div class="stat-value">{{ total_companies }}</div>
+                <div class="stat-label">合作企业</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">快捷操作</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('admin.users') }}" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-people"></i> 用户管理
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('student.list') }}" class="btn btn-outline-success w-100">
+                                <i class="bi bi-mortarboard"></i> 学生管理
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('employment.list') }}" class="btn btn-outline-info w-100">
+                                <i class="bi bi-briefcase"></i> 就业管理
+                            </a>
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <a href="{{ url_for('analysis.index') }}" class="btn btn-outline-warning w-100">
+                                <i class="bi bi-graph-up"></i> 数据分析
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% elif role == 'teacher' %}
+    <!-- 教师仪表盘 -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="stat-icon text-primary"><i class="bi bi-mortarboard"></i></div>
+                <div class="stat-value">{{ total_students }}</div>
+                <div class="stat-label">负责学生数</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="stat-icon text-success"><i class="bi bi-briefcase-check"></i></div>
+                <div class="stat-value">{{ employed_count }}</div>
+                <div class="stat-label">已就业</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card stat-card">
+                <div class="stat-icon text-info"><i class="bi bi-percent"></i></div>
+                <div class="stat-value">{{ employment_rate }}%</div>
+                <div class="stat-label">就业率</div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- 学生仪表盘 -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-person"></i> 个人信息</div>
+                <div class="card-body">
+                    {% if student %}
+                    <table class="table table-borderless">
+                        <tr><td width="120">学号</td><td>{{ student.student_no }}</td></tr>
+                        <tr><td>姓名</td><td>{{ student.name }}</td></tr>
+                        <tr><td>学院</td><td>{{ student.college.name if student.college else '-' }}</td></tr>
+                        <tr><td>专业</td><td>{{ student.major.name if student.major else '-' }}</td></tr>
+                        <tr><td>班级</td><td>{{ student.class_name or '-' }}</td></tr>
+                        <tr><td>毕业年份</td><td>{{ student.graduation_year or '-' }}</td></tr>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">暂无个人信息，请联系管理员完善。</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-briefcase"></i> 就业信息</div>
+                <div class="card-body">
+                    {% if employment %}
+                    <table class="table table-borderless">
+                        <tr><td width="120">就业状态</td>
+                            <td><span class="badge bg-{{ 'success' if employment.employment_status == '已就业' else 'warning' }}">
+                                {{ employment.employment_status }}
+                            </span></td></tr>
+                        <tr><td>企业名称</td><td>{{ employment.company_name or '-' }}</td></tr>
+                        <tr><td>职位</td><td>{{ employment.position or '-' }}</td></tr>
+                        <tr><td>薪资</td><td>{{ employment.salary ~ '元' if employment.salary else '-' }}</td></tr>
+                        <tr><td>就业地点</td><td>{{ employment.province ~ employment.city if employment.province else '-' }}</td></tr>
+                    </table>
+                    {% else %}
+                    <p class="text-muted">暂未填报就业信息。</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

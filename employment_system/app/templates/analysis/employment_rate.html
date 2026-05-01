@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}就业率分析{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="bi bi-pie-chart"></i> 就业率分析</h4>
+        <a href="{{ url_for('analysis.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> 返回
+        </a>
+    </div>
+
+    <!-- 筛选 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <select name="year" class="form-select">
+                        <option value="">全部年份</option>
+                        {% for y in range(2025, 2015) %}
+                        <option value="{{ y }}" {{ 'selected' if year == y else '' }}>{{ y }}年</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">筛选</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 图表 -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">各学院就业率对比</div>
+                <div class="card-body">
+                    <div id="collegeChart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">就业率占比</div>
+                <div class="card-body">
+                    <div id="pieChart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详细数据表 -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">学院就业率详情</div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr><th>学院</th><th>总人数</th><th>已就业</th><th>就业率</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in college_stats %}
+                            <tr>
+                                <td>{{ stat.name }}</td>
+                                <td>{{ stat.total }}</td>
+                                <td>{{ stat.employed }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if stat.rate >= 90 else 'warning' if stat.rate >= 70 else 'danger' }}">
+                                        {{ stat.rate }}%
+                                    </span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="4" class="text-center text-muted">暂无数据</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">专业就业率详情</div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead>
+                            <tr><th>专业</th><th>学院</th><th>总人数</th><th>就业率</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for stat in major_stats %}
+                            <tr>
+                                <td>{{ stat.name }}</td>
+                                <td>{{ stat.college }}</td>
+                                <td>{{ stat.total }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if stat.rate >= 90 else 'warning' if stat.rate >= 70 else 'danger' }}">
+                                        {{ stat.rate }}%
+                                    </span>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="4" class="text-center text-muted">暂无数据</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    fetch('/analysis/api/employment_rate_chart?year={{ year or "" }}')
+        .then(response => response.json())
+        .then(data => {
+            var collegeChart = echarts.init(document.getElementById('collegeChart'));
+            collegeChart.setOption({
+                tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+                xAxis: { type: 'category', data: data.map(d => d.name) },
+                yAxis: { type: 'value', max: 100, axisLabel: { formatter: '{value}%' } },
+                series: [{
+                    type: 'bar',
+                    data: data.map(d => d.value),
+                    itemStyle: {
+                        color: function(params) {
+                            var v = params.value;
+                            if (v >= 90) return '#22c55e';
+                            if (v >= 70) return '#3b82f6';
+                            if (v >= 50) return '#f59e0b';
+                            return '#ef4444';
+                        }
+                    },
+                    label: { show: true, position: 'top', formatter: '{c}%' }
+                }]
+            });
+
+            var pieChart = echarts.init(document.getElementById('pieChart'));
+            pieChart.setOption({
+                tooltip: { trigger: 'item' },
+                legend: { bottom: '5%' },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    data: data.map(d => ({ name: d.name, value: d.value })),
+                    emphasis: {
+                        itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0, 0, 0, 0.5)' }
+                    }
+                }]
+            });
+        });
+</script>
+{% endblock %}

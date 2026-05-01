@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}学生列表{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="bi bi-mortarboard"></i> 学生列表</h4>
+        {% if current_user.is_admin() %}
+        <div>
+            <a href="{{ url_for('student.import_data') }}" class="btn btn-outline-success">
+                <i class="bi bi-upload"></i> 导入
+            </a>
+            <a href="{{ url_for('student.export_data') }}" class="btn btn-outline-info">
+                <i class="bi bi-download"></i> 导出
+            </a>
+            <a href="{{ url_for('student.add') }}" class="btn btn-primary">
+                <i class="bi bi-plus"></i> 添加学生
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 搜索筛选 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <select name="college_id" class="form-select">
+                        <option value="">全部学院</option>
+                        {% for college in colleges %}
+                        <option value="{{ college.id }}" {{ 'selected' if college_id == college.id else '' }}>
+                            {{ college.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="major_id" class="form-select" id="majorSelect">
+                        <option value="">全部专业</option>
+                        {% for major in majors %}
+                        <option value="{{ major.id }}" {{ 'selected' if major_id == major.id else '' }}>
+                            {{ major.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="graduation_year" class="form-select">
+                        <option value="">毕业年份</option>
+                        {% for year in range(2025, 2014, -1) %}
+                        <option value="{{ year }}" {{ 'selected' if graduation_year == year else '' }}>
+                            {{ year }}年
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="text" name="keyword" class="form-control" placeholder="搜索学号/姓名" value="{{ keyword }}">
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> 搜索
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 学生列表 -->
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>学号</th>
+                        <th>姓名</th>
+                        <th>性别</th>
+                        <th>学院</th>
+                        <th>专业</th>
+                        <th>班级</th>
+                        <th>毕业年份</th>
+                        <th>就业状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in pagination.items %}
+                    <tr>
+                        <td>{{ student.student_no }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.gender or '-' }}</td>
+                        <td>{{ student.college.name if student.college else '-' }}</td>
+                        <td>{{ student.major.name if student.major else '-' }}</td>
+                        <td>{{ student.class_name or '-' }}</td>
+                        <td>{{ student.graduation_year or '-' }}</td>
+                        <td>
+                            {% if student.employment %}
+                                {% set status = student.employment.employment_status %}
+                                <span class="badge bg-{{ 'success' if status == '已就业' else 'info' if status == '升学' else 'warning' }}">
+                                    {{ status }}
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">未填报</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('student.detail', id=student.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if current_user.is_admin() %}
+                            <a href="{{ url_for('student.edit', id=student.id) }}" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form action="{{ url_for('student.delete', id=student.id) }}" method="POST" style="display:inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定删除?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="9" class="text-center text-muted">暂无学生数据</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- 分页 -->
+            {% if pagination.pages > 1 %}
+            <nav class="d-flex justify-content-center">
+                <ul class="pagination">
+                    {% if pagination.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('student.list', page=pagination.prev_num, college_id=college_id, major_id=major_id, graduation_year=graduation_year, keyword=keyword) }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for page in pagination.iter_pages() %}
+                        {% if page %}
+                        <li class="page-item {{ 'active' if page == pagination.page else '' }}">
+                            <a class="page-link" href="{{ url_for('student.list', page=page, college_id=college_id, major_id=major_id, graduation_year=graduation_year, keyword=keyword) }}">
+                                {{ page }}
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if pagination.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('student.list', page=pagination.next_num, college_id=college_id, major_id=major_id, graduation_year=graduation_year, keyword=keyword) }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 保存当前选中的专业ID
+    var currentMajorId = {{ major_id | tojson if major_id else 'null' }};
+
+    // 学院专业联动
+    document.querySelector('select[name="college_id"]').addEventListener('change', function() {
+        var collegeId = this.value;
+        fetch('/student/api/majors/' + collegeId)
+            .then(response => response.json())
+            .then(data => {
+                var majorSelect = document.getElementById('majorSelect');
+                majorSelect.innerHTML = '<option value="">全部专业</option>';
+                data.forEach(function(major) {
+                    var selected = (major.id === currentMajorId) ? ' selected' : '';
+                    majorSelect.innerHTML += '<option value="' + major.id + '"' + selected + '>' + major.name + '</option>';
+                });
+                // 重置当前专业ID，避免后续联动错误
+                currentMajorId = null;
+            })
+            .catch(error => {
+                console.error('获取专业列表失败:', error);
+            });
+    });
+</script>
+{% endblock %}

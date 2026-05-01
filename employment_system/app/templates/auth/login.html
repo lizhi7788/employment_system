@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}登录 - 毕业生就业信息分析系统{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header text-center">
+                <h4 class="mb-0">
+                    <i class="bi bi-mortarboard-fill text-primary"></i> 毕业生就业信息分析系统
+                </h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('auth.login') }}">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        <label for="username" class="form-label">
+                            <i class="bi bi-person"></i> 用户名
+                        </label>
+                        {{ form.username(class="form-control form-control-lg", placeholder="请输入用户名") }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">
+                            <i class="bi bi-lock"></i> 密码
+                        </label>
+                        {{ form.password(class="form-control form-control-lg", placeholder="请输入密码") }}
+                        {% if form.password.errors %}
+                            <div class="text-danger small mt-1">{{ form.password.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        {{ form.remember(class="form-check-input") }}
+                        <label class="form-check-label" for="remember">记住我</label>
+                    </div>
+
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}发布招聘{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-plus-circle"></i> 发布招聘信息</div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.company_id.label.text }}</label>
+                            {{ form.company_id(class="form-select") }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.title.label.text }}</label>
+                            {{ form.title(class="form-control") }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.position.label.text }}</label>
+                                {{ form.position(class="form-control") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.salary_range.label.text }}</label>
+                                {{ form.salary_range(class="form-control") }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.work_location.label.text }}</label>
+                                {{ form.work_location(class="form-control") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.education_requirements.label.text }}</label>
+                                {{ form.education_requirements(class="form-select") }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.major_requirements.label.text }}</label>
+                            {{ form.major_requirements(class="form-control") }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.description.label.text }}</label>
+                            {{ form.description(class="form-control", rows="5") }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.publish_date.label.text }}</label>
+                                {{ form.publish_date(class="form-control", type="date") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.deadline.label.text }}</label>
+                                {{ form.deadline(class="form-control", type="date") }}
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('company.recruitment_list') }}" class="btn btn-secondary">返回</a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}首页{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- 统计卡片 -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-primary">
+                    <i class="bi bi-mortarboard"></i>
+                </div>
+                <div class="stat-value text-primary">{{ total_students }}</div>
+                <div class="stat-label">毕业生总数</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-success">
+                    <i class="bi bi-briefcase-check"></i>
+                </div>
+                <div class="stat-value text-success">{{ employed_students }}</div>
+                <div class="stat-label">已就业人数</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-info">
+                    <i class="bi bi-percent"></i>
+                </div>
+                <div class="stat-value text-info">{{ employment_rate }}%</div>
+                <div class="stat-label">就业率</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-warning">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div class="stat-value text-warning">{{ college_stats|length }}</div>
+                <div class="stat-label">学院数量</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 最新公告 -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-megaphone"></i> 最新公告
+                </div>
+                <div class="card-body">
+                    {% if announcements %}
+                    <ul class="list-group list-group-flush">
+                        {% for announcement in announcements %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('admin.announcements') }}">{{ announcement.title }}</a>
+                            <small class="text-muted">{{ announcement.created_at.strftime('%Y-%m-%d') }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted text-center">暂无公告</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- 就业活动 -->
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-calendar-event"></i> 近期就业活动
+                </div>
+                <div class="card-body">
+                    {% if activities %}
+                    <ul class="list-group list-group-flush">
+                        {% for activity in activities %}
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <span>
+                                    <span class="badge bg-info me-2">{{ activity.activity_type }}</span>
+                                    {{ activity.title }}
+                                </span>
+                                <small class="text-muted">
+                                    {{ activity.start_time.strftime('%Y-%m-%d') if activity.start_time else '' }}
+                                </small>
+                            </div>
+                            <small class="text-muted">{{ activity.location }}</small>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="text-muted text-center">暂无活动</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 学院就业率 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-bar-chart"></i> 各学院就业率统计
+                </div>
+                <div class="card-body">
+                    <div id="collegeChart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 学院就业率图表
+    var chartDom = document.getElementById('collegeChart');
+    var myChart = echarts.init(chartDom);
+    var option = {
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: { type: 'shadow' }
+        },
+        xAxis: {
+            type: 'category',
+            data: {{ college_stats|map(attribute='name')|list|tojson|safe if college_stats else '[]' }}
+        },
+        yAxis: {
+            type: 'value',
+            max: 100,
+            axisLabel: { formatter: '{value}%' }
+        },
+        series: [{
+            name: '就业率',
+            type: 'bar',
+            data: {{ college_stats|map(attribute='employment_rate')|list|tojson|safe if college_stats else '[]' }},
+            itemStyle: {
+                color: function(params) {
+                    var value = params.value;
+                    if (value >= 90) return '#22c55e';
+                    if (value >= 70) return '#3b82f6';
+                    if (value >= 50) return '#f59e0b';
+                    return '#ef4444';
+                }
+            },
+            label: {
+                show: true,
+                position: 'top',
+                formatter: '{c}%'
+            }
+        }]
+    };
+    myChart.setOption(option);
+</script>
+{% endblock %}

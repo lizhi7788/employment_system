@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}企业详情{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ url_for('company.list') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> 返回列表
+        </a>
+        {% if current_user.is_admin() %}
+        <a href="{{ url_for('company.edit', id=company.id) }}" class="btn btn-outline-success">
+            <i class="bi bi-pencil"></i> 编辑
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-building"></i> 企业信息</div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr><td width="120">企业名称</td><td>{{ company.name }}</td></tr>
+                        <tr><td>信用代码</td><td>{{ company.credit_code or '-' }}</td></tr>
+                        <tr><td>所属行业</td><td>{{ company.industry or '-' }}</td></tr>
+                        <tr><td>企业类型</td><td>{{ company.type or '-' }}</td></tr>
+                        <tr><td>企业规模</td><td>{{ company.scale or '-' }}</td></tr>
+                        <tr><td>地址</td><td>{{ company.address or '-' }}</td></tr>
+                        <tr><td>网站</td><td>{{ company.website or '-' }}</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-text-left"></i> 企业简介</div>
+                <div class="card-body">
+                    <p>{{ company.description or '暂无简介' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 招聘信息 -->
+    <div class="card">
+        <div class="card-header"><i class="bi bi-file-text"></i> 招聘职位</div>
+        <div class="card-body">
+            {% if recruitments %}
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>职位</th>
+                        <th>薪资范围</th>
+                        <th>工作地点</th>
+                        <th>学历要求</th>
+                        <th>发布日期</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in recruitments %}
+                    <tr>
+                        <td>{{ r.position or r.title }}</td>
+                        <td>{{ r.salary_range or '面议' }}</td>
+                        <td>{{ r.work_location or '-' }}</td>
+                        <td>{{ r.education_requirements or '-' }}</td>
+                        <td>{{ r.publish_date.strftime('%Y-%m-%d') if r.publish_date else '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-muted text-center">暂无招聘信息</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

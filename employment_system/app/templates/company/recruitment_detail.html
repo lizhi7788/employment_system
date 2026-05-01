@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}招聘详情{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ url_for('company.recruitment_list') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> 返回列表
+        </a>
+        {% if current_user.is_admin() %}
+        <a href="{{ url_for('company.recruitment_edit', id=recruitment.id) }}" class="btn btn-outline-success">
+            <i class="bi bi-pencil"></i> 编辑
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-file-text"></i> 招聘详情</div>
+                <div class="card-body">
+                    <h4>{{ recruitment.title }}</h4>
+                    <hr>
+                    <table class="table table-borderless">
+                        <tr><td width="120">企业</td><td>{{ recruitment.company.name if recruitment.company else '-' }}</td></tr>
+                        <tr><td>职位</td><td>{{ recruitment.position or '-' }}</td></tr>
+                        <tr><td>薪资范围</td><td>{{ recruitment.salary_range or '面议' }}</td></tr>
+                        <tr><td>工作地点</td><td>{{ recruitment.work_location or '-' }}</td></tr>
+                        <tr><td>专业要求</td><td>{{ recruitment.major_requirements or '-' }}</td></tr>
+                        <tr><td>学历要求</td><td>{{ recruitment.education_requirements or '-' }}</td></tr>
+                        <tr><td>发布日期</td><td>{{ recruitment.publish_date.strftime('%Y-%m-%d') if recruitment.publish_date else '-' }}</td></tr>
+                        <tr><td>截止日期</td><td>{{ recruitment.deadline.strftime('%Y-%m-%d') if recruitment.deadline else '-' }}</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-text-left"></i> 职位描述</div>
+                <div class="card-body">
+                    <p>{{ recruitment.description or '暂无描述' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

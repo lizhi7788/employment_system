@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}就业详情{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <a href="{{ url_for('employment.list') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> 返回列表
+        </a>
+        {% if current_user.is_admin() or current_user.is_teacher() %}
+        <a href="{{ url_for('employment.edit', id=employment.id) }}" class="btn btn-outline-success">
+            <i class="bi bi-pencil"></i> 编辑
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-person"></i> 学生信息</div>
+                <div class="card-body">
+                    {% if employment.student %}
+                    <table class="table table-borderless">
+                        <tr><td width="120">学号</td><td>{{ employment.student.student_no }}</td></tr>
+                        <tr><td>姓名</td><td>{{ employment.student.name }}</td></tr>
+                        <tr><td>学院</td><td>{{ employment.student.college.name if employment.student.college else '-' }}</td></tr>
+                        <tr><td>专业</td><td>{{ employment.student.major.name if employment.student.major else '-' }}</td></tr>
+                        <tr><td>毕业年份</td><td>{{ employment.student.graduation_year or '-' }}</td></tr>
+                    </table>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-briefcase"></i> 就业详情</div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr><td width="120">就业状态</td>
+                            <td><span class="badge bg-{{ 'success' if employment.employment_status == '已就业' else 'info' if employment.employment_status == '升学' else 'warning' }}">
+                                {{ employment.employment_status or '-' }}
+                            </span></td></tr>
+                        <tr><td>就业类型</td><td>{{ employment.employment_type or '-' }}</td></tr>
+                        <tr><td>企业名称</td><td>{{ employment.company_name or '-' }}</td></tr>
+                        <tr><td>职位</td><td>{{ employment.position or '-' }}</td></tr>
+                        <tr><td>月薪</td><td>{{ employment.salary ~ '元' if employment.salary else '-' }}</td></tr>
+                        <tr><td>就业地点</td><td>{{ (employment.province or '') ~ (employment.city or '') ~ (employment.district or '') }}</td></tr>
+                        <tr><td>行业</td><td>{{ employment.industry or '-' }}</td></tr>
+                        <tr><td>企业类型</td><td>{{ employment.company_type or '-' }}</td></tr>
+                        <tr><td>就业日期</td><td>{{ employment.employment_date.strftime('%Y-%m-%d') if employment.employment_date else '-' }}</td></tr>
+                        <tr><td>合同期限</td><td>{{ employment.contract_duration ~ '年' if employment.contract_duration else '-' }}</td></tr>
+                        <tr><td>是否签约</td>
+                            <td><span class="badge bg-{{ 'success' if employment.is_signed else 'secondary' }}">
+                                {{ '已签约' if employment.is_signed else '未签约' }}
+                            </span></td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

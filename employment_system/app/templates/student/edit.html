@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}编辑学生{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-pencil"></i> 编辑学生 - {{ student.name }}
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.student_no.label.text }}</label>
+                                {{ form.student_no(class="form-control") }}
+                                {% if form.student_no.errors %}
+                                    <div class="text-danger small">{{ form.student_no.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.name.label.text }}</label>
+                                {{ form.name(class="form-control") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.gender.label.text }}</label>
+                                {{ form.gender(class="form-select") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.id_card.label.text }}</label>
+                                {{ form.id_card(class="form-control") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.birth_date.label.text }}</label>
+                                {{ form.birth_date(class="form-control", type="date") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.college_id.label.text }}</label>
+                                {{ form.college_id(class="form-select", id="collegeSelect") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.major_id.label.text }}</label>
+                                {{ form.major_id(class="form-select", id="majorSelect") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.class_name.label.text }}</label>
+                                {{ form.class_name(class="form-control") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.enrollment_year.label.text }}</label>
+                                {{ form.enrollment_year(class="form-control", type="number") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.graduation_year.label.text }}</label>
+                                {{ form.graduation_year(class="form-control", type="number") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.phone.label.text }}</label>
+                                {{ form.phone(class="form-control") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.email.label.text }}</label>
+                                {{ form.email(class="form-control") }}
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('student.detail', id=student.id) }}" class="btn btn-secondary">返回</a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('collegeSelect').addEventListener('change', function() {
+        var collegeId = this.value;
+        fetch('/student/api/majors/' + collegeId)
+            .then(response => response.json())
+            .then(data => {
+                var majorSelect = document.getElementById('majorSelect');
+                majorSelect.innerHTML = '<option value="">请选择专业</option>';
+                data.forEach(function(major) {
+                    majorSelect.innerHTML += '<option value="' + major.id + '">' + major.name + '</option>';
+                });
+            });
+    });
+</script>
+{% endblock %}

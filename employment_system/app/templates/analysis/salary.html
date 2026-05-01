@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}薪资分析{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="bi bi-currency-yen"></i> 薪资分析</h4>
+        <a href="{{ url_for('analysis.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> 返回
+        </a>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-primary"><i class="bi bi-cash-stack"></i></div>
+                <div class="stat-value">{{ overall_stats.avg }}元</div>
+                <div class="stat-label">平均月薪</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-success"><i class="bi bi-arrow-up"></i></div>
+                <div class="stat-value">{{ overall_stats.max }}元</div>
+                <div class="stat-label">最高月薪</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-danger"><i class="bi bi-arrow-down"></i></div>
+                <div class="stat-value">{{ overall_stats.min }}元</div>
+                <div class="stat-label">最低月薪</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card">
+                <div class="stat-icon text-info"><i class="bi bi-people"></i></div>
+                <div class="stat-value">{{ overall_stats.count }}</div>
+                <div class="stat-label">样本数</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图表 -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">薪资分布</div>
+                <div class="card-body">
+                    <div id="salaryDistChart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">各学院平均薪资</div>
+                <div class="card-body">
+                    <div id="collegeSalaryChart" style="height: 400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详细数据 -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">学院薪资详情</div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead><tr><th>学院</th><th>平均月薪</th><th>样本数</th></tr></thead>
+                        <tbody>
+                            {% for stat in college_salary %}
+                            <tr>
+                                <td>{{ stat.name }}</td>
+                                <td>{{ stat.avg }}元</td>
+                                <td>{{ stat.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header">行业薪资详情</div>
+                <div class="card-body">
+                    <table class="table">
+                        <thead><tr><th>行业</th><th>平均月薪</th><th>样本数</th></tr></thead>
+                        <tbody>
+                            {% for stat in industry_avg %}
+                            <tr>
+                                <td>{{ stat.name }}</td>
+                                <td>{{ stat.avg }}元</td>
+                                <td>{{ stat.count }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // 薪资分布图表
+    var salaryDist = {{ salary_distribution|tojson|safe }};
+    var salaryDistChart = echarts.init(document.getElementById('salaryDistChart'));
+    salaryDistChart.setOption({
+        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+        xAxis: { type: 'category', data: Object.keys(salaryDist) },
+        yAxis: { type: 'value' },
+        series: [{
+            type: 'bar',
+            data: Object.values(salaryDist),
+            itemStyle: { color: '#3b82f6' }
+        }]
+    });
+
+    // 学院薪资图表
+    var collegeSalary = {{ college_salary|tojson|safe }};
+    var collegeSalaryChart = echarts.init(document.getElementById('collegeSalaryChart'));
+    collegeSalaryChart.setOption({
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: collegeSalary.map(d => d.name) },
+        yAxis: { type: 'value' },
+        series: [{
+            type: 'line',
+            data: collegeSalary.map(d => d.avg),
+            smooth: true,
+            itemStyle: { color: '#22c55e' },
+            areaStyle: { color: 'rgba(34, 197, 94, 0.2)' }
+        }]
+    });
+</script>
+{% endblock %}

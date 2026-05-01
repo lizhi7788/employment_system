@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}添加企业{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-plus-circle"></i> 添加企业</div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.name.label.text }}</label>
+                            {{ form.name(class="form-control") }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.credit_code.label.text }}</label>
+                                {{ form.credit_code(class="form-control") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.industry.label.text }}</label>
+                                {{ form.industry(class="form-control") }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.type.label.text }}</label>
+                                {{ form.type(class="form-control") }}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">{{ form.scale.label.text }}</label>
+                                {{ form.scale(class="form-select") }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.address.label.text }}</label>
+                            {{ form.address(class="form-control") }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.website.label.text }}</label>
+                            {{ form.website(class="form-control") }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.description.label.text }}</label>
+                            {{ form.description(class="form-control", rows="4") }}
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('company.list') }}" class="btn btn-secondary">返回</a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}就业信息列表{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="bi bi-briefcase"></i> 就业信息列表</h4>
+        {% if current_user.is_admin() %}
+        <div>
+            <a href="{{ url_for('employment.import_data') }}" class="btn btn-outline-success">
+                <i class="bi bi-upload"></i> 导入
+            </a>
+            <a href="{{ url_for('employment.export_data') }}" class="btn btn-outline-info">
+                <i class="bi bi-download"></i> 导出
+            </a>
+            <a href="{{ url_for('employment.add') }}" class="btn btn-primary">
+                <i class="bi bi-plus"></i> 添加就业信息
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 搜索筛选 -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <select name="college_id" class="form-select">
+                        <option value="">全部学院</option>
+                        {% for college in colleges %}
+                        <option value="{{ college.id }}" {{ 'selected' if college_id == college.id else '' }}>
+                            {{ college.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">全部状态</option>
+                        {% for s in statuses %}
+                        <option value="{{ s }}" {{ 'selected' if status == s else '' }}>{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="year" class="form-select">
+                        <option value="">毕业年份</option>
+                        {% for y in range(2025, 2015) %}
+                        <option value="{{ y }}" {{ 'selected' if year == y else '' }}>{{ y }}年</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="keyword" class="form-control" placeholder="搜索学号/姓名/企业" value="{{ keyword }}">
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 就业列表 -->
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>学号</th>
+                        <th>姓名</th>
+                        <th>学院</th>
+                        <th>就业状态</th>
+                        <th>企业名称</th>
+                        <th>职位</th>
+                        <th>薪资</th>
+                        <th>行业</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in pagination.items %}
+                    <tr>
+                        <td>{{ emp.student.student_no if emp.student else '-' }}</td>
+                        <td>{{ emp.student.name if emp.student else '-' }}</td>
+                        <td>{{ emp.student.college.name if emp.student and emp.student.college else '-' }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if emp.employment_status == '已就业' else 'info' if emp.employment_status == '升学' else 'warning' }}">
+                                {{ emp.employment_status or '-' }}
+                            </span>
+                        </td>
+                        <td>{{ emp.company_name or '-' }}</td>
+                        <td>{{ emp.position or '-' }}</td>
+                        <td>{{ emp.salary ~ '元' if emp.salary else '-' }}</td>
+                        <td>{{ emp.industry or '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('employment.detail', id=emp.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            {% if current_user.is_admin() or current_user.is_teacher() %}
+                            <a href="{{ url_for('employment.edit', id=emp.id) }}" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% endif %}
+                            {% if current_user.is_admin() %}
+                            <form action="{{ url_for('employment.delete', id=emp.id) }}" method="POST" style="display:inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('确定删除?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="9" class="text-center text-muted">暂无就业数据</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- 分页 -->
+            {% if pagination.pages > 1 %}
+            <nav class="d-flex justify-content-center">
+                <ul class="pagination">
+                    {% if pagination.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('employment.list', page=pagination.prev_num) }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for page in pagination.iter_pages() %}
+                        {% if page %}
+                        <li class="page-item {{ 'active' if page == pagination.page else '' }}">
+                            <a class="page-link" href="{{ url_for('employment.list', page=page) }}">{{ page }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if pagination.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('employment.list', page=pagination.next_num) }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

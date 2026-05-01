@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}学生详情 - {{ student.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <a href="{{ url_for('student.list') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> 返回列表
+            </a>
+        </div>
+        {% if current_user.is_admin() %}
+        <div>
+            <a href="{{ url_for('student.edit', id=student.id) }}" class="btn btn-outline-success">
+                <i class="bi bi-pencil"></i> 编辑
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-person"></i> 基本信息</div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr><td width="120">学号</td><td>{{ student.student_no }}</td></tr>
+                        <tr><td>姓名</td><td>{{ student.name }}</td></tr>
+                        <tr><td>性别</td><td>{{ student.gender or '-' }}</td></tr>
+                        <tr><td>身份证号</td><td>{{ student.id_card or '-' }}</td></tr>
+                        <tr><td>出生日期</td><td>{{ student.birth_date.strftime('%Y-%m-%d') if student.birth_date else '-' }}</td></tr>
+                        <tr><td>学院</td><td>{{ student.college.name if student.college else '-' }}</td></tr>
+                        <tr><td>专业</td><td>{{ student.major.name if student.major else '-' }}</td></tr>
+                        <tr><td>班级</td><td>{{ student.class_name or '-' }}</td></tr>
+                        <tr><td>入学年份</td><td>{{ student.enrollment_year or '-' }}</td></tr>
+                        <tr><td>毕业年份</td><td>{{ student.graduation_year or '-' }}</td></tr>
+                        <tr><td>联系电话</td><td>{{ student.phone or '-' }}</td></tr>
+                        <tr><td>邮箱</td><td>{{ student.email or '-' }}</td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header"><i class="bi bi-briefcase"></i> 就业信息</div>
+                <div class="card-body">
+                    {% if employment %}
+                    <table class="table table-borderless">
+                        <tr><td width="120">就业状态</td>
+                            <td><span class="badge bg-{{ 'success' if employment.employment_status == '已就业' else 'info' if employment.employment_status == '升学' else 'warning' }}">
+                                {{ employment.employment_status }}
+                            </span></td></tr>
+                        <tr><td>就业类型</td><td>{{ employment.employment_type or '-' }}</td></tr>
+                        <tr><td>企业名称</td><td>{{ employment.company_name or '-' }}</td></tr>
+                        <tr><td>职位</td><td>{{ employment.position or '-' }}</td></tr>
+                        <tr><td>月薪</td><td>{{ employment.salary ~ '元' if employment.salary else '-' }}</td></tr>
+                        <tr><td>就业地点</td><td>{{ employment.province ~ employment.city ~ employment.district if employment.province else '-' }}</td></tr>
+                        <tr><td>行业</td><td>{{ employment.industry or '-' }}</td></tr>
+                        <tr><td>企业类型</td><td>{{ employment.company_type or '-' }}</td></tr>
+                        <tr><td>就业日期</td><td>{{ employment.employment_date.strftime('%Y-%m-%d') if employment.employment_date else '-' }}</td></tr>
+                        <tr><td>合同期限</td><td>{{ employment.contract_duration ~ '年' if employment.contract_duration else '-' }}</td></tr>
+                    </table>
+                    {% else %}
+                    <p class="text-muted text-center py-4">暂未填报就业信息</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

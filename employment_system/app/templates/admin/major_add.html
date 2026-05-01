@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}添加专业{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header"><i class="bi bi-plus-circle"></i> 添加专业</div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.name.label.text }}</label>
+                            {{ form.name(class="form-control") }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.code.label.text }}</label>
+                            {{ form.code(class="form-control") }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.college_id.label.text }}</label>
+                            {{ form.college_id(class="form-select") }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">{{ form.description.label.text }}</label>
+                            {{ form.description(class="form-control", rows="3") }}
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('admin.majors') }}" class="btn btn-secondary">返回</a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
